@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads ドラフトレビュー — のすけ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: linear-gradient(180deg, #0a0e1a 0%, #0f172a 100%); color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; min-height: 100vh; line-height: 1.7; }
+  .card { background: linear-gradient(145deg, #141b2d 0%, #1a2238 100%); border: 1px solid #2a3654; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .post-card { transition: all 0.2s; }
+  .post-card:hover { border-color: #38bdf8; box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15); }
+  .main-text { background: rgba(56, 189, 248, 0.08); border-left: 4px solid #38bdf8; padding: 16px 20px; border-radius: 8px; font-size: 1.125rem; font-weight: 600; color: #fff; line-height: 1.7; }
+  .reply { background: #0f172a; border: 1px solid #2a3654; border-radius: 10px; padding: 14px 18px; margin-top: 8px; font-size: 0.95rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.7; }
+  .reply-num { display: inline-block; background: #38bdf8; color: #0a0e1a; font-weight: 700; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-bottom: 8px; }
+  .meta-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; }
+  .badge-blue { background: #38bdf8; color: #0a0e1a; }
+  .badge-sky { background: #0ea5e9; color: white; }
+  .badge-rose { background: #f43f5e; color: white; }
+  .badge-amber { background: #fbbf24; color: #422006; }
+  .badge-emerald { background: #10b981; color: white; }
+  .badge-gray { background: #475569; color: white; }
+  .badge-outline { background: transparent; border: 1px solid #2a3654; color: #cbd5e1; }
+  .pulse-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  details summary { cursor: pointer; user-select: none; color: #94a3b8; font-size: 0.875rem; padding: 4px 0; }
+  details summary:hover { color: #38bdf8; }
+  details[open] summary { color: #38bdf8; }
+  .filter-btn { padding: 8px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; transition: all 0.15s; cursor: pointer; }
+  .filter-btn.active { background: #38bdf8; color: #0a0e1a; font-weight: 700; }
+  .filter-btn:not(.active) { background: #1f2a44; color: #cbd5e1; }
+  .filter-btn:not(.active):hover { background: #2a3654; }
+</style>
+</head>
+<body>
+<div class="max-w-[1200px] mx-auto p-4 md:p-8">
+  <header class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="pulse-dot"></span>
+      <span class="text-xs text-emerald-400 font-bold tracking-widest uppercase">DRAFT REVIEW</span>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Threads ドラフトレビュー</h1>
+    <p class="text-slate-400 mt-2">@nosuke_marketing_strategy · <span id="meta"></span></p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="/nosuke-threads-assets/dashboard/" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg">📊 ダッシュ</a>
+      <a href="/nosuke-threads-assets/strategy/" class="text-xs bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-2 rounded-lg">📘 戦略</a>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <section class="card p-4 mb-6 flex flex-wrap gap-2 items-center">
+    <span class="text-xs text-slate-400 mr-2">層フィルタ:</span>
+    <button class="filter-btn active" data-filter="all">すべて</button>
+    <button class="filter-btn" data-filter="l1">L1 認知</button>
+    <button class="filter-btn" data-filter="l2">L2 共感 ★</button>
+    <button class="filter-btn" data-filter="l3">L3 議論</button>
+    <button class="filter-btn" data-filter="l4">L4 接続</button>
+  </section>
+
+  <!-- Posts -->
+  <section id="posts" class="space-y-6">
+    
+<article class="card post-card p-6" data-layer-class="">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-gray">未分類</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">E</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/14(日) 17:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-14-1700-thinking-sunday-morning-calm.md</div>
+      
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">—</div>
+      <div class="text-xs text-rose-400 font-bold">—</div>
+    </div>
+  </div>
+
+  <div class="main-text">日曜の朝、何も予定がない贅沢。フリーランスで一番好きな時間。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 0本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="text-xs text-slate-500 italic">リプなし</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">型E×楽しく。</span></div>
+    <div>狙い: <span class="text-slate-300">—</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-gray">未分類</span>
+        <span class="meta-pill badge-outline">ai-funnel</span>
+        <span class="meta-pill badge-outline">bold-claim</span>
+        <span class="meta-pill badge-outline">G-2</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/14(日) 19:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-14-1900-ai-funnel-ai-junior-end.md</div>
+      
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">—</div>
+      <div class="text-xs text-rose-400 font-bold">—</div>
+    </div>
+  </div>
+
+  <div class="main-text">AIをアシスタント扱いしてる人、来年の競争に負けます。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>これ煽りじゃなく予測。
+AIを『下に置く』使い方は、もう古い。
+上位は『相棒』として対等に対話してる。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>対等に扱うと、AIは自分の思考の鏡になる。
+下に置くと、ただの作業ツール。
+出力の質が文字通り桁違いになる。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>AIへの姿勢を変える。
+これが、AI時代の競争軸。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">G-2煽り×ai-funnel。</span></div>
+    <div>狙い: <span class="text-slate-300">—</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-gray">未分類</span>
+        <span class="meta-pill badge-outline">copywriting</span>
+        <span class="meta-pill badge-outline">list</span>
+        <span class="meta-pill badge-outline">G-3</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/14(日) 20:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-14-2000-copywriting-story-write-rules.md</div>
+      
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">—</div>
+      <div class="text-xs text-rose-400 font-bold">—</div>
+    </div>
+  </div>
+
+  <div class="main-text">ストーリーコピーを書く5つの構造、テンプレ感ゼロで。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>1. 主人公の『今の感情』から書き出す（過去から書かない）。
+2. 1つの具体的シーン（時間・場所・固有名）を必ず入れる。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>3. 失敗・違和感・転機の順で動かす。
+4. 教訓は最後の1行だけ。
+5. 主人公の名前を出さなくてもいい（読者が自分を重ねる）。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>ウラカタ案件、これでLPの離脱率が30%減った。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">G-3リスト×copywriting。</span></div>
+    <div>狙い: <span class="text-slate-300">—</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-gray">未分類</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/14(日) 22:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-14-2200-thinking-20s-purpose-find.md</div>
+      
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">—</div>
+      <div class="text-xs text-rose-400 font-bold">—</div>
+    </div>
+  </div>
+
+  <div class="main-text">20代後半、独立して初めて『何のために働くか』を真剣に考えた。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>会社員時代は『言われたことをやる』で時間が過ぎていった。
+独立して全部自分で決めるようになって、初めて『なぜ』を問い始めた。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>答えは今でも探してる。
+でも、楽しく稼ぎながら、自分の納得する仕事をする。
+これが暫定の答え。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>20代で『なぜ』に向き合えたのは、独立した最大の収穫。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">G-1告白×thinking×20代×楽しく。</span></div>
+    <div>狙い: <span class="text-slate-300">—</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-gray">未分類</span>
+        <span class="meta-pill badge-outline">ai-funnel</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">E</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/14(日) 23:30</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-14-2330-ai-funnel-ai-sunday-thanks.md</div>
+      
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">—</div>
+      <div class="text-xs text-rose-400 font-bold">—</div>
+    </div>
+  </div>
+
+  <div class="main-text">今週、AIと一緒に乗り越えた仕事が3つあった。来週もよろしく頼む。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 0本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="text-xs text-slate-500 italic">リプなし</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">型E×楽しく。</span></div>
+    <div>狙い: <span class="text-slate-300">—</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/16(火) 12:30</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-16-1230-thinking-7sqm-room-broken.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材C (7平米の寮・心が折れた音)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,200〜2,500</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 15〜30</div>
+    </div>
+  </div>
+
+  <div class="main-text">2年前の夏、7平米の会社の寮で、心が折れた音が聞こえた。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>会社の寮の7平米のワンルームで、
+机の前のPC開きっぱなし、
+クラウドソーシングの案件、月160時間やって、
+手元に残った金額は8,000円。
+
+時給に換算したら50円でした。
+
+残高は10万円ギリギリ。
+食費もまともに使えなくて、飲み会も断ってた。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>親元には帰らなかった。
+というか、帰れなかった。
+「もうダメ」って言いに行く資格がない気がしてた。
+
+一番きつかったのは、
+「自分は挑戦しても実らない」
+って自分で自分を否定する声だった。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>あれから2年。
+
+リストマーケに振り切って、
+AIマーケのウラカタとして、
+複数の事業で売上を回せるようになった。
+
+7平米の寮で折れた音を聞いた僕に教えたいのは、
+「副業の中身じゃなく、選び方の構造を変えろ」
+ただこれだけです。
+
+同じ場所で詰まってる人、もっと書いてます[プロフへ]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">最も情景が強い「7平米の寮」素材を主軸に、共感最大化を狙う。 / L2共感層・フォロー転換ドライバー狙い。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層 - フォロー転換ドライバー</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/17(水) 17:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-17-1700-thinking-160hours-8000yen.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材C (時給50円) + 素材B (副業全敗)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,500〜3,000 (数字インパクト強)</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 20〜40</div>
+    </div>
+  </div>
+
+  <div class="main-text">月160時間働いて、副業収入は8,000円。時給50円で、本気で泣いてた頃の話。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>クラウドソーシングで案件を取って、
+Web制作、プログラミング、動画編集、
+全部「実績を作って拡張するため」って言い聞かせてた。
+
+でも実績は積み上がらなかった。
+というか、積み上げ方を間違ってた。
+
+時給50円で得たのは、
+「努力の方向が違うと、何もならない」
+という冷たい事実だけでした。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>あの頃の僕に必要だったのは、
+もっと頑張る方法じゃなくて、
+「副業の選び方の構造」を変える視点でした。
+
+Web制作もプログラミングも飽和してる領域。
+どれだけ頑張っても時給は上がらない。
+
+代わりが効かない領域に立つまで、
+時給は変わらないんです。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>リストマーケに振り切ったら、
+1年後に売上180%成長で億超え事業を任されるようになった。
+
+時給50円のあの夏の僕に教えたいのは、
+「努力の質より、努力の場所だ」ということ。
+
+同じ場所で詰まってる人、もっと書いてます。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">最強の数字「時給50円」を冒頭一発。 / 数字×弱さで共感最大化。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l1">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-blue">L1+原体験 (認知+人柄)</span>
+        <span class="meta-pill badge-outline">ai-funnel</span>
+        <span class="meta-pill badge-outline">bold-claim</span>
+        <span class="meta-pill badge-outline">G-2</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/18(木) 14:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-18-1400-ai-funnel-skill-bankruptcy.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材B (副業全敗) + 素材D (転機)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 2,000〜5,000</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 10〜30</div>
+    </div>
+  </div>
+
+  <div class="main-text">Web制作・プログラミング・動画編集、スキル系副業はもう完全終了です。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>Web制作、プログラミング、LINE運用、動画編集。
+
+スキル系の副業は、いま完全に終わってます。
+
+理由: 全部が「代わりが効く領域」だから。
+クラウドソーシングで単価競争が起きて、
+海外勢に時給で勝てなくなり、
+上にAIが乗ってきた。
+
+時給は底に張り付いたまま。
+どれだけスキル磨いても天井が動かない。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>じゃあ何をやるか。
+
+「代わりが効かない領域」に立つこと。
+具体的には3つあります。
+
+1. リストマーケ(顧客リソースの設計)
+2. プロモーション全般(売れる流れの設計)
+3. コンテンツの裏側(価値を組み立てる思考)
+
+僕は2年前にここに振り切って、
+1年後に売上180%成長して、
+億超え事業を複数任されるようになりました。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>正直に言うと、僕も2年前まで
+スキル系副業を全部試して、月160時間で8,000円稼いでた人間です。
+
+その頃、ずっと「スキルを磨けば」って思ってた。
+でも違った。
+
+磨くべきはスキルじゃなく、領域でした。
+
+同じ場所で詰まってる人、もっと書いてます。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">最強時間帯(木曜午後14-17)に投入。 / bold-claim hook で認知最大化 + 末尾に原体験で人柄垣間見せ。 / L1+原体験で両取り。</span></div>
+    <div>狙い: <span class="text-slate-300">L1+原体験 - リーチ最大化+末尾で人柄</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">confession</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/18(木) 17:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-18-1700-thinking-no-senpai.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材A (会社員時代・尊敬できる先輩ゼロ)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,000〜2,500</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 20〜50 (共感層直撃)</div>
+    </div>
+  </div>
+
+  <div class="main-text">東京の大手広告代理店で営業してた頃、尊敬できる先輩が1人もいなかった。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>新卒で東京の大手広告代理店に営業として入って、
+1年経っても2年経っても、
+なりたい先輩が1人も見つからなかった。
+
+みんな朝まで飲んで、
+朝はギリギリに起きて、
+法定残業ぎりぎりまで働いて、
+間に合わなければサービス残業。
+
+22時退社で誰もそれを変な顔しない世界。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>その世界で一番怖かったのは、
+「この人みたいになりたい」って思える先輩がゼロだったこと。
+
+なりたい未来が見えない場所で、
+誰よりも負けない気持ちで頑張ってた。
+
+でも、無理だった。
+その時の自分は、ただ消耗してただけ。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>周りの同期は結果を出して、いい転職先に出ていく。
+年収も上がっていく。
+
+自分だけが取り残されてる気がして、
+それでも飲み会では何ともない顔をしてた。
+
+本当の自分を、誰にも言えなかった。
+
+あの頃の自分に教えたいのは、
+「尊敬できる人がいない場所は、辞めていい」
+ということだけです。
+
+[同じ場所で悩んでた人、もっと書いてます]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">会社員ストーリーの最強フック。 / 「先輩で尊敬できる人ゼロ」の絶望感を素直に出す。 / L2共感・退職を考えてる層を狙う。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層 - 退職検討者にフック</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">copywriting</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/19(金) 07:30</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-19-0730-copywriting-partner-relationship.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材F (パートナー険悪→入籍) + 素材C</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 800〜2,000</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 25〜60 (情緒共感)</div>
+    </div>
+  </div>
+
+  <div class="main-text">副業で詰まってた頃、パートナーとめちゃくちゃ険悪でした。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>時給50円で副業してた頃、
+一番遠かったのはお金じゃなくて、
+隣の人の信頼だった。
+
+7平米の寮で夜中までPC開いて、
+結果が出ないのを見られてた頃、
+めちゃくちゃ険悪でした。
+
+「副業ばっかりやって何がしたいの」
+その問いに、自分でも答えを持ってなかった。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>でも、リストマーケに振り切ってから、
+少しずつ景色が変わった。
+
+まず時間ができた。
+次に収入が上がって、
+最後に「自分の選択を信じられる感覚」が戻ってきた。
+
+人を支える前に、自分が立たないといけなかったんだと、
+後から気づいた。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>あれから2年。
+
+入籍して、海外旅行にも行けた。
+あの時、僕を信じ続けてくれた人と、
+いま新しいスタートを切れている。
+
+副業に詰まってる人へ。
+一番の損失は、稼げないことじゃない。
+一番大事な人との関係を、削っていくことです。
+
+[同じ場所で悩んでた話、もっと書いてます]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">情緒最強の素材。パートナー険悪→入籍は希望ストーリー。 / 朝7:30の通勤時に人生回想モードへ誘う。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l3">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-amber">L3+原体験 (議論)</span>
+        <span class="meta-pill badge-outline">copywriting</span>
+        <span class="meta-pill badge-outline">contrarian</span>
+        <span class="meta-pill badge-outline">G-2</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/19(金) 12:30</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-19-1230-copywriting-sns-disgusting.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材E (SNS嫌い時代)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 800〜2,000</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 15〜30</div>
+    </div>
+  </div>
+
+  <div class="main-text">SNSが本気で気持ち悪かった営業時代の僕に、いま教えたい話。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>気持ち悪かったものを並べます。
+
+「いいねしてください」連呼。
+「フォロバします」アカ。
+「副業で月100万」系の煽り。
+マーケなのに虚言、誇張広告。
+短期的快楽だけを訴求する発信。
+
+全部、顧客の本能を刺して、
+最終的に顧客を不幸にする訴求でした。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>僕は当時、営業をやってて、
+SNSは「自分とは違う世界」だと思ってた。
+
+でも結果が出始めて気づいたのは、
+SNSは媒体じゃなく「設計図」だってこと。
+
+嫌いだったから、何がダメか分かってた。
+嫌いだったから、その逆を設計できた。
+
+好きな人は感覚で投稿する。
+嫌いだった人は構造で設計する。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>いま僕がやってるのは、
+煽らない、不幸にしない、本能を刺さない。
+
+けれど結果は出る、という設計。
+
+SNS嫌いだった人ほど、
+実はSNS設計の才能を持ってます。
+
+嫌いだったあなたの違和感、
+そのまま設計の核になります。
+
+[この続きはプロフから]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">contrarian + 葛藤の対比。 / 「嫌いだった人が設計する側に回る」逆説。 / L3議論層 - replies誘発を狙う。</span></div>
+    <div>狙い: <span class="text-slate-300">L3+原体験</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l1">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-blue">L1+原体験 (認知+人柄)</span>
+        <span class="meta-pill badge-outline">ai-funnel</span>
+        <span class="meta-pill badge-outline">bold-claim</span>
+        <span class="meta-pill badge-outline">G-2</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/20(土) 09:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-20-0900-ai-funnel-list-marketing-discovery.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材D (転機・売上180%) + 素材C</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,500〜3,500</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 15〜30</div>
+    </div>
+  </div>
+
+  <div class="main-text">時給50円で泣いてた僕が、リストマーケで売上180%成長させた話。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>時給50円で副業してた頃の僕に、
+マーケのプロモーション全般を集中的に学ばせたら、
+1年で売上180%成長して、億超え事業を任されるようになった。
+
+やったことは1つ。
+
+「リストマーケに振り切る」
+だけです。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>なぜリストマーケなのか。
+
+クラウドソーシングのスキル系は、
+時給競争 + 海外勢 + AI の三重苦で、
+時給は底に張り付いたまま。
+
+でもリストマーケは違う。
+1人の顧客の生涯価値を設計する仕事だから、
+時給ではなく「設計の精度」で価値が変わる。
+
+代わりが効かない領域です。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>リストマーケの中で僕がやってる順番は3つ。
+
+1. LINE運用・構築(顧客との接点の設計)
+2. コンテンツ作り(価値を組み立てる思考)
+3. プロモーション全般(売れる流れの設計)
+
+この3つが回せるようになると、
+1人で複数の事業を動かせるようになります。
+
+時給50円から月商100万超まで、
+僕がやってきた道筋、プロフからもっと書いてます。</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">数字インパクト型の認知ドライバー。 / リストマーケへの誘導 + 末尾で原体験。 / 土曜朝の脳が動く時間帯狙い。</span></div>
+    <div>狙い: <span class="text-slate-300">L1+原体験 - 認知+人柄</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">story</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/20(土) 17:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-20-1700-thinking-corporate-life-feel.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材B (副業動機 - 会社に生かされる感覚)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,200〜2,500</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 25〜50</div>
+    </div>
+  </div>
+
+  <div class="main-text">20代で「会社に生かされてる」感覚が致命的に嫌だった。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>20代の僕にとって、致命的だったのは、
+給料の安さでも残業の長さでもなく、
+「人生の主導権が、自分の手元にない」感覚でした。
+
+上司に決められた仕事をして、
+会社が決めた時間に動いて、
+会社が決めた評価で給料をもらう。
+
+間違ってはいない、けど、
+自分の人生を生きてる感覚がなかった。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>でも、何が嫌なのか言語化できない時期が長かった。
+
+「仕事が楽しくない」
+「志がない」
+「どうなりたいかが分からない」
+
+その全部が、結局は同じ問題でした。
+
+「主導権が自分にない」
+それだけ。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>副業ジプシーになって、
+Web制作もプログラミングもLINE運用も動画編集も試して、
+全部稼げなくて、
+時給50円まで落ちた。
+
+でも、その間ずっと「自分の手で何かを動かしてる」感覚はあった。
+
+結果じゃなく、感覚を取り戻すための副業期だったと、
+後から気づきました。
+
+[同じ感覚の話、もっと書いてます]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">「会社に生かされてる感覚」が会社員層に刺さる。 / 土曜の夕方 = 来週への憂鬱感に直撃。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l2">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-rose">L2 共感層 ★</span>
+        <span class="meta-pill badge-outline">thinking</span>
+        <span class="meta-pill badge-outline">confession</span>
+        <span class="meta-pill badge-outline">G-1</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/21(日) 12:30</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-21-1230-thinking-parents-worry.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材F (両親) + 素材C (暗黒期)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,000〜2,500</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 30〜60 (家族系は共感深い)</div>
+    </div>
+  </div>
+
+  <div class="main-text">副業ジプシーだった頃、親に鬼ほど心配されてた。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 3本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/3</span><br>副業ジプシーだった頃、
+親には鬼ほど心配されてた。
+
+一方で「すごい頑張ってる」とも言われてた。
+
+心配と褒められるが両立する時期って、
+本人にとっては一番きつい。
+
+「報われてない努力」を見られてる感覚だから。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/3</span><br>その頃、相談できる人は1人もいませんでした。
+
+会社の同期には本当の自分を言えなかった。
+飲み会では何ともない顔をしてた。
+
+パートナーともめちゃくちゃ険悪で、
+7平米の寮の中で、ただPC開いて、
+時給50円の案件を消化してた。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/3</span><br>あの頃の自分に1つだけ言えるなら、
+「お前の選択は無駄じゃない」
+ということ。
+
+Web制作も、プログラミングも、動画編集も、
+全部稼げなかったけど、
+全部「自分の手で何かを動かす感覚」を育てた。
+
+その感覚があったから、
+リストマーケに出会った時、振り切れた。
+
+[同じ場所で詰まってる人、もっと書いてます]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">日曜昼 = 来週への準備モード。 / 「親心配」「相談できる人ゼロ」の孤独感が共感最大化。</span></div>
+    <div>狙い: <span class="text-slate-300">L2共感層</span></div>
+  </div>
+</article>
+
+
+<article class="card post-card p-6" data-layer-class="l4">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span class="meta-pill badge-emerald">L4 接続層</span>
+        <span class="meta-pill badge-outline">copywriting</span>
+        <span class="meta-pill badge-outline">list</span>
+        <span class="meta-pill badge-outline">G-3</span>
+      </div>
+      <div class="text-2xl font-bold text-white">6/21(日) 17:00</div>
+      <div class="text-sm text-slate-400 mt-1">📁 2026-06-21-1700-copywriting-side-job-lessons.md</div>
+      <div class="mt-2 text-xs"><span class="meta-pill badge-amber">📖 素材B + 素材C + 素材D (全体総括・接続層)</span></div>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">想定</div>
+      <div class="text-sm text-sky-400 font-bold">views: 1,500〜3,000</div>
+      <div class="text-xs text-rose-400 font-bold">likes: 20〜40</div>
+    </div>
+  </div>
+
+  <div class="main-text">副業を全部試して全部失敗した僕が、ようやく気づいた5つ。</div>
+
+  <details class="mt-4" open>
+    <summary class="text-sm font-bold">📝 リプ 5本 (クリックで展開/折りたたみ)</summary>
+    <div class="mt-3 space-y-2">
+<div class="reply"><span class="reply-num">リプ 1/5</span><br>1. スキル系副業は時給競争で詰む
+
+動画編集、Web制作、コーダー、運用代行。
+全部「代わりが効く領域」だから、
+海外勢とAIに時給で勝てない。
+
+どれだけスキル磨いても天井が動かない。
+</div>
+<div class="reply"><span class="reply-num">リプ 2/5</span><br>2. 実績作り目的の安単価案件は無意味
+
+僕は時給50円の案件を「実績」と思って消化してた。
+でも積み上がらなかった。
+
+クラウドソーシングの安単価実績は、
+「次の安単価」しか呼ばない。
+階段にならない。
+</div>
+<div class="reply"><span class="reply-num">リプ 3/5</span><br>3. 1つの副業に専念しても結果は変わらない
+
+僕は副業を「次々試した」と思ってたけど、
+本当はもう少し続けるべきだったと最初は反省してた。
+
+でも今は違う。
+
+どれを続けても、領域が「代わりが効く側」なら、
+結果は同じだった。
+</div>
+<div class="reply"><span class="reply-num">リプ 4/5</span><br>4. 代わりが効かない領域に立つ
+
+リストマーケ、プロモーション設計、コンテンツの裏側。
+僕がたどり着いたのはこの3つ。
+
+時給ではなく「設計の精度」で価値が決まる領域。
+ここに振り切ったら、1年で売上180%成長になった。
+</div>
+<div class="reply"><span class="reply-num">リプ 5/5</span><br>5. 「自分の手で動かしてる感覚」だけは消えない
+
+副業全部失敗したけど、
+その間ずっと「自分の手で何かを動かす感覚」は残った。
+
+その感覚があったから、リストマーケに出会った時、
+迷わず振り切れた。
+
+全部の経験は無駄じゃない。
+
+[この続き、まとめてプロフから書いてます]</div>
+    </div>
+  </details>
+
+  <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400 grid md:grid-cols-2 gap-2">
+    <div>intent: <span class="text-slate-300">L4接続層。週末まとめ投稿。 / 副業全部試した経験を「使える教訓5つ」に変換。 / 保存価値最大化 + 将来の note 動線。</span></div>
+    <div>狙い: <span class="text-slate-300">L4接続層 - 後コンテンツへの橋渡し</span></div>
+  </div>
+</article>
+
+  </section>
+
+  <!-- Summary -->
+  <section class="card p-6 mt-8">
+    <h2 class="text-xl font-bold text-white mb-4">📋 一括承認ガイド</h2>
+    <div class="text-sm text-slate-300 space-y-2">
+      <p>レビューOKなら、ターミナルで以下を実行:</p>
+      <pre class="bg-slate-900 p-4 rounded-lg text-xs overflow-x-auto"><code># 全部一括approved化
+python3 -c "
+import sys; sys.path.insert(0, 'scripts/publisher')
+from common import load_draft, save_draft
+from pathlib import Path
+for f in sorted(Path('knowledge/Threads/posts/drafts').glob('2026-06-1[6-9]*.md')) + sorted(Path('knowledge/Threads/posts/drafts').glob('2026-06-2[01]*.md')):
+    fm, body = load_draft(f)
+    if fm.get('status') == 'draft':
+        fm['status'] = 'approved'
+        save_draft(f, fm, body)
+        print(f'approved: {f.name}')
+"
+
+# commit & push
+git add knowledge/Threads/posts/drafts/
+git commit -m "feat(threads): 原体験10本をapproved化(自動投稿開始)"
+git push</code></pre>
+      <p class="text-xs text-slate-400 mt-3">個別に承認したい場合は、各ファイルを開いて <code>status: draft</code> → <code>status: approved</code> に変更。</p>
+    </div>
+  </section>
+
+  <footer class="text-center text-slate-500 text-sm py-8">
+    Generated by build_html_review.py · <span id="updated"></span>
+  </footer>
+</div>
+
+<script>
+const meta = document.getElementById('meta');
+const updated = document.getElementById('updated');
+const cards = document.querySelectorAll('[data-layer-class]');
+meta.textContent = `${cards.length} 本のドラフト | 最終生成: ${new Date().toLocaleString('ja-JP')}`;
+updated.textContent = new Date().toLocaleString('ja-JP');
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    cards.forEach(c => {
+      const lc = c.dataset.layerClass;
+      c.style.display = (f === 'all' || lc === f) ? '' : 'none';
+    });
+  });
+});
+</script>
+</body>
+</html>

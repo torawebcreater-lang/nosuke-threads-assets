@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads 投稿戦略 マスタードキュメント — のすけ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: linear-gradient(180deg, #0a0e1a 0%, #0f172a 100%); color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; min-height: 100vh; line-height: 1.7; }
+  .card { background: linear-gradient(145deg, #141b2d 0%, #1a2238 100%); border: 1px solid #2a3654; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .card-hi { background: linear-gradient(145deg, #1a2238 0%, #2a3654 100%); border: 1px solid #3a4664; }
+  h2 { font-size: 1.875rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 8px; }
+  h3 { font-size: 1.25rem; font-weight: 700; color: #fff; margin-top: 24px; margin-bottom: 12px; }
+  h4 { font-size: 1rem; font-weight: 700; color: #38bdf8; margin-top: 16px; margin-bottom: 8px; }
+  .section-num { color: #38bdf8; font-family: monospace; font-weight: 700; margin-right: 8px; }
+  table { width: 100%; font-size: 0.875rem; border-collapse: separate; border-spacing: 0; }
+  th { background: #1f2a44; color: #cbd5e1; padding: 12px 14px; text-align: left; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 2px solid #2a3654; }
+  td { padding: 12px 14px; border-bottom: 1px solid #2a3654; }
+  tbody tr:hover td { background: rgba(56, 189, 248, 0.05); }
+  .pulse-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .anchor-nav { position: sticky; top: 16px; }
+  .anchor-link { display: block; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; color: #94a3b8; text-decoration: none; transition: all 0.15s; }
+  .anchor-link:hover { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+  .funnel-layer { padding: 20px; border-radius: 12px; margin-bottom: 8px; position: relative; }
+  .funnel-l1 { background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03)); border-left: 4px solid #38bdf8; }
+  .funnel-l2 { background: linear-gradient(90deg, rgba(244, 63, 94, 0.15), rgba(244, 63, 94, 0.03)); border-left: 4px solid #f43f5e; }
+  .funnel-l3 { background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.03)); border-left: 4px solid #fbbf24; }
+  .funnel-l4 { background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.03)); border-left: 4px solid #10b981; }
+  .check-item { padding: 14px 16px; border-radius: 10px; background: #1a2238; border: 1px solid #2a3654; margin-bottom: 8px; transition: all 0.15s; cursor: pointer; }
+  .check-item:hover { border-color: #38bdf8; transform: translateX(4px); }
+  .priority-red { border-left: 4px solid #f43f5e; }
+  .priority-yellow { border-left: 4px solid #fbbf24; }
+  .priority-green { border-left: 4px solid #10b981; }
+  .priority-blue { border-left: 4px solid #38bdf8; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; }
+  .badge-red { background: #f43f5e; color: white; }
+  .badge-yellow { background: #fbbf24; color: #422006; }
+  .badge-green { background: #10b981; color: white; }
+  .badge-blue { background: #38bdf8; color: #0a0e1a; }
+  .badge-gray { background: #475569; color: white; }
+  .formula-box { background: #0f172a; border: 1px solid #2a3654; border-radius: 12px; padding: 20px; font-family: monospace; font-size: 0.875rem; line-height: 1.9; }
+  .quote-box { background: rgba(56, 189, 248, 0.08); border-left: 4px solid #38bdf8; padding: 16px 20px; border-radius: 8px; margin: 16px 0; }
+  .kpi-target { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+  .strikethrough { text-decoration: line-through; color: #64748b; }
+  pre.example { background: #0f172a; border: 1px solid #2a3654; border-radius: 12px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; font-size: 0.95rem; line-height: 1.8; white-space: pre-wrap; color: #e2e8f0; }
+</style>
+</head>
+<body>
+<div class="max-w-[1400px] mx-auto p-4 md:p-8">
+  <!-- Header -->
+  <header class="mb-10">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="pulse-dot"></span>
+      <span class="text-xs text-emerald-400 font-bold tracking-widest uppercase">MASTER STRATEGY</span>
+    </div>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Threads 投稿戦略 <span class="text-accent" style="color:#38bdf8;">マスタードキュメント</span></h1>
+    <p class="text-slate-400 mt-3">@nosuke_marketing_strategy · 2026-06-14 策定 · 226投稿の実データ分析 + 原体験素材活用方針</p>
+    <div class="flex gap-3 mt-4">
+      <a href="/nosuke-threads-assets/dashboard/" class="text-sm text-sky-400 hover:underline">← ダッシュボードに戻る</a>
+    </div>
+  </header>
+
+  <div class="grid lg:grid-cols-[260px_1fr] gap-8">
+    <!-- Side Nav -->
+    <aside class="hidden lg:block">
+      <div class="anchor-nav card p-4">
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">目次</div>
+        <a href="#tldr" class="anchor-link">0. 戦略の核 (3行)</a>
+        <a href="#data" class="anchor-link">1. データから判明した事実</a>
+        <a href="#funnel" class="anchor-link">2. 4層ファネル</a>
+        <a href="#experience" class="anchor-link">3. 原体験素材ライブラリ</a>
+        <a href="#formula" class="anchor-link">4. ブラッシュアップの公式</a>
+        <a href="#kpi" class="anchor-link">5. KPI</a>
+        <a href="#actions" class="anchor-link">6. 今後の必要なこと</a>
+        <a href="#dontlist" class="anchor-link">7. やらないこと</a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="space-y-12">
+      <!-- 0. TLDR -->
+      <section id="tldr" class="card p-8" style="border-left: 6px solid #38bdf8;">
+        <h2><span class="section-num">0.</span>戦略の核（3行）</h2>
+        <ol class="space-y-3 mt-4 text-lg text-slate-200">
+          <li class="flex gap-3"><span class="text-accent font-bold" style="color:#38bdf8;">①</span><span><strong class="text-white">「リーチ型のフォーマット」に「原体験エッセンス」を注入</strong> = 認知も共感も両取り</span></li>
+          <li class="flex gap-3"><span class="text-accent font-bold" style="color:#38bdf8;">②</span><span>4層ファネル(認知→共感→議論→接続)で<strong class="text-white">投稿を役割別に配分</strong></span></li>
+          <li class="flex gap-3"><span class="text-accent font-bold" style="color:#38bdf8;">③</span><span>全70本/週のうち<strong class="text-white"> 約7割(52本)に原体験を入れる</strong> = フォロワー資産形成</span></li>
+        </ol>
+      </section>
+
+      <!-- 1. Data Findings -->
+      <section id="data" class="card p-8">
+        <h2><span class="section-num">1.</span>データから判明した事実</h2>
+
+        <h3>1-1. 現状の致命的ギャップ</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>指標</th><th>現状</th><th>解釈</th></tr></thead>
+            <tbody>
+              <tr><td>views平均</td><td class="text-accent font-bold" style="color:#38bdf8;">238</td><td>リーチは出てる ✅</td></tr>
+              <tr><td>likes平均</td><td class="text-rose-400 font-bold">0.51本</td><td><strong class="text-red-300">共感ドライバー欠如 ❌</strong></td></tr>
+              <tr><td>reposts/quotes平均</td><td class="text-rose-400 font-bold">0.004本</td><td><strong class="text-red-300">拡散ドライバー欠如 ❌</strong></td></tr>
+              <tr><td>最強投稿(views 6,297)のreposts</td><td>1</td><td>リーチしてもシェアされない</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>1-2. 型別の役割（一目で読める）</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>型</th><th>views平均</th><th>いいね率</th><th>役割</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-blue">ai-funnel × bold-claim</span></td><td>700+</td><td>0.07%</td><td>🎯 認知ドライバー</td></tr>
+              <tr><td><span class="badge badge-red">thinking × story</span></td><td><strong class="text-white">546</strong></td><td><strong class="text-white">0.27%</strong></td><td>💚 共感ドライバー (リーチも◎)</td></tr>
+              <tr><td><span class="badge badge-red">copywriting × story</span></td><td>225</td><td class="text-rose-300 font-bold">1.40%</td><td>🔥 共感最強（リーチ弱）</td></tr>
+              <tr><td><span class="badge badge-yellow">contrarian</span></td><td>277</td><td class="text-warning font-bold" style="color:#fbbf24;">0.49%</td><td>💬 議論ドライバー</td></tr>
+              <tr><td><span class="badge badge-green">list</span></td><td>514</td><td>0.07%</td><td>💾 保存ドライバー</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>1-3. 最強の時間帯</h3>
+        <div class="quote-box">
+          <strong class="text-white">木曜 × 午後14-17時</strong> が最強（views平均 605）<br>
+          <span class="text-slate-400 text-sm">6/4 12:30 thinking/list "freelance-mind-5" = views 6,297 で証明</span>
+        </div>
+      </section>
+
+      <!-- 2. Funnel -->
+      <section id="funnel" class="card p-8">
+        <h2><span class="section-num">2.</span>投稿の4層ファネル</h2>
+        <p class="text-slate-400 mb-6">役割で分けて配置する。views最大化ではなく「ファネルを完成させる」のが目的。</p>
+
+        <div class="space-y-2">
+          <div class="funnel-layer funnel-l1">
+            <div class="flex items-baseline justify-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-blue">L1 認知層</span>
+                <span class="ml-2 text-sm text-slate-400">25% (週18本)</span>
+              </div>
+              <span class="text-xs text-sky-300 font-mono">AI×bold-claim + 末尾原体験1行</span>
+            </div>
+            <div class="text-slate-200 mt-3">リーチ最大化＋プロフ誘導</div>
+            <div class="text-xs text-slate-500 mt-1">目的: views最大化、検索流入、新規TLへ届く</div>
+          </div>
+
+          <div class="funnel-layer funnel-l1" style="opacity: 0.7;">
+            <div class="flex items-baseline justify-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-blue">L1単独</span>
+                <span class="ml-2 text-sm text-slate-400">15% (週10本)</span>
+              </div>
+              <span class="text-xs text-sky-300 font-mono">純粋AI×bold-claim</span>
+            </div>
+            <div class="text-slate-200 mt-3">検索流入専門のスナイパー</div>
+          </div>
+
+          <div class="funnel-layer funnel-l2">
+            <div class="flex items-baseline justify-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-red">L2 共感層 ★最重要</span>
+                <span class="ml-2 text-sm text-slate-400">35% (週24本)</span>
+              </div>
+              <span class="text-xs text-rose-300 font-mono">thinking/copy × story 原体験そのもの</span>
+            </div>
+            <div class="text-slate-200 mt-3">弱さ・告白で「追いたい」を作る</div>
+            <div class="text-xs text-slate-500 mt-1">目的: フォロー転換、いいね・保存最大化</div>
+          </div>
+
+          <div class="funnel-layer funnel-l3">
+            <div class="flex items-baseline justify-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-yellow">L3 議論層</span>
+                <span class="ml-2 text-sm text-slate-400">15% (週10本)</span>
+              </div>
+              <span class="text-xs text-amber-300 font-mono">copy × contrarian + 葛藤の対比</span>
+            </div>
+            <div class="text-slate-200 mt-3">replies誘発・回遊</div>
+            <div class="text-xs text-slate-500 mt-1">目的: アクティブフォロワー化、議論喚起</div>
+          </div>
+
+          <div class="funnel-layer funnel-l4">
+            <div class="flex items-baseline justify-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-green">L4 接続層</span>
+                <span class="ml-2 text-sm text-slate-400">10% (週8本)</span>
+              </div>
+              <span class="text-xs text-emerald-300 font-mono">list (保存型) + 過去原体験引用</span>
+            </div>
+            <div class="text-slate-200 mt-3">後コンテンツへの橋渡し・ストック化</div>
+            <div class="text-xs text-slate-500 mt-1">目的: 将来noteへの動線、保存資産</div>
+          </div>
+        </div>
+
+        <h3>原体験入り = 全70本中 52本(74%)</h3>
+        <div class="quote-box">
+          <strong class="text-white">純粋リーチ = 10本(14%)</strong>、接続 = 8本(11%)、その他は全て原体験エッセンスを含む。
+        </div>
+      </section>
+
+      <!-- 3. Original Experiences -->
+      <section id="experience" class="card p-8">
+        <h2><span class="section-num">3.</span>原体験素材ライブラリ</h2>
+        <p class="text-slate-400 mb-6">のすけの原体験を投稿の共感ドライバーに変換する。</p>
+
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="card-hi p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="badge badge-red">素材A</span>
+              <span class="text-xs text-slate-400">2年棒に振った</span>
+            </div>
+            <h4 style="color:#fb7185;">会社員時代に2年棒に振った</h4>
+            <div class="text-sm text-slate-300 space-y-2 mt-3">
+              <div><strong class="text-white">強み:</strong> 強烈数字「2年」「棒に振った」</div>
+              <div><strong class="text-white">使い方:</strong> bold-claim hookの信頼性付与 / 共感の出発点</div>
+              <div><strong class="text-white">適用層:</strong> L1+原体験 / L2</div>
+            </div>
+          </div>
+
+          <div class="card-hi p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="badge badge-yellow">素材B</span>
+              <span class="text-xs text-slate-400">SNS大嫌い</span>
+            </div>
+            <h4 style="color:#facc15;">SNS大嫌いだった</h4>
+            <div class="text-sm text-slate-300 space-y-2 mt-3">
+              <div><strong class="text-white">強み:</strong> 逆説性「嫌いだった人が成功」</div>
+              <div><strong class="text-white">使い方:</strong> contrarian hook の核 / 自己紹介の入口</div>
+              <div><strong class="text-white">適用層:</strong> L3+原体験 / L2</div>
+            </div>
+          </div>
+
+          <div class="card-hi p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="badge badge-blue">素材C</span>
+              <span class="text-xs text-slate-400">葛藤の夜</span>
+            </div>
+            <h4 style="color:#60a5fa;">葛藤の夜・暗黒期の情景</h4>
+            <div class="text-sm text-slate-300 space-y-2 mt-3">
+              <div><strong class="text-white">強み:</strong> 情景性「深夜2時」「誰のため」</div>
+              <div><strong class="text-white">使い方:</strong> confession型の核 / リプ最終本</div>
+              <div><strong class="text-white">適用層:</strong> L2 / L1+原体験の末尾注入</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-box mt-6">
+          <strong class="text-white">次のアクション:</strong> <code class="text-amber-300">knowledge/Threads/strategy/original_experiences.md</code> を埋める (30分)。具体的な日付・数字・情景・セリフ・感情の名前まで落とすと、投稿テンプレ変換が一気に進む。
+        </div>
+      </section>
+
+      <!-- 4. Formula -->
+      <section id="formula" class="card p-8">
+        <h2><span class="section-num">4.</span>ブラッシュアップの公式</h2>
+
+        <div class="formula-box mt-4">
+          <span class="text-sky-300">[強いフック=リーチドライバー]</span>      <span class="text-slate-500">← AI/煽り/contrarian/数字</span><br>
+          <span class="text-rose-300">+ [原体験の1行=共感ドライバー]</span>      <span class="text-slate-500">← A/B/Cから1つ選択</span><br>
+          <span class="text-amber-300">+ [今の立ち位置/数字=信頼ドライバー]</span> <span class="text-slate-500">← 月商100万 / 20万フォロワー</span><br>
+          <span class="text-emerald-300">+ [接続CTA=フォロー転換]</span>            <span class="text-slate-500">← 「続きはプロフ」</span><br>
+          ─────────────────────<br>
+          <span class="text-white font-bold">= 認知も共感も両取り</span>
+        </div>
+
+        <h3>適用例：素材A「2年棒に振った」</h3>
+        <pre class="example">会社員時代、本当に2年棒に振りました。
+
+毎日21時退社、深夜2時にエクセル開いて、
+誰のためか分からない資料を作って、
+朝起きて「今日も意味なかったな」って思って通勤してた。
+
+正直、SNSも大嫌いでした。
+発信してる人見て「お前ら能天気でいいよな」って思ってた側です。
+
+その僕が今、AIマーケの裏方で月商100万超えて
+複数アカウントで総フォロワー20万人を動かしてます。
+
+何が変わったか。
+2年棒に振ったことを「自分の証明」だと気づいたこと。
+
+[続きをプロフに書いてます]</pre>
+
+        <h3>末尾CTA設計（層別）</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>層</th><th>CTAテンプレ</th><th>目的</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-blue">L1+原体験</span></td><td>「他の話もプロフから」「続きを書いてます→プロフ」</td><td>フォロー誘導</td></tr>
+              <tr><td><span class="badge badge-red">L2 共感</span></td><td>「同じレイヤーで詰まってた話、もっと書いてます→プロフ」</td><td>フォロー転換最大化</td></tr>
+              <tr><td><span class="badge badge-yellow">L3 議論</span></td><td>「あなたはどう思う？」+ 過去議論への引用RP</td><td>回遊</td></tr>
+              <tr><td><span class="badge badge-green">L4 接続</span></td><td>「保存版→[note将来]」</td><td>ストック化</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. KPI -->
+      <section id="kpi" class="card p-8">
+        <h2><span class="section-num">5.</span>KPI — 4週間後ターゲット</h2>
+        <div class="grid md:grid-cols-2 gap-6 mt-4">
+          <div class="card-hi p-6">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">views平均</div>
+            <div class="flex items-baseline gap-3">
+              <span class="text-2xl text-slate-500 strikethrough">238</span>
+              <span class="text-slate-500">→</span>
+              <span class="text-4xl kpi-target">350</span>
+              <span class="text-emerald-400 font-bold">+50%</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">戦略: L1+原体験の追加</div>
+          </div>
+
+          <div class="card-hi p-6">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">いいね率</div>
+            <div class="flex items-baseline gap-3">
+              <span class="text-2xl text-slate-500 strikethrough">0.21%</span>
+              <span class="text-slate-500">→</span>
+              <span class="text-4xl kpi-target">0.8%</span>
+              <span class="text-emerald-400 font-bold">+280%</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">戦略: L2原体験の比率増</div>
+          </div>
+
+          <div class="card-hi p-6">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">reposts/月合計</div>
+            <div class="flex items-baseline gap-3">
+              <span class="text-2xl text-slate-500 strikethrough">~3</span>
+              <span class="text-slate-500">→</span>
+              <span class="text-4xl kpi-target">30</span>
+              <span class="text-emerald-400 font-bold">10倍</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">戦略: 拡散誘発CTA設計</div>
+          </div>
+
+          <div class="card-hi p-6" style="border-color: #f43f5e;">
+            <div class="text-xs text-rose-300 font-bold uppercase tracking-wider mb-2">★ フォロワー増/週</div>
+            <div class="flex items-baseline gap-3">
+              <span class="text-2xl text-slate-500 strikethrough">不明</span>
+              <span class="text-slate-500">→</span>
+              <span class="text-4xl kpi-target">+50〜100</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">戦略: プロフ動線完成+L2強化</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Actions -->
+      <section id="actions" class="card p-8">
+        <h2><span class="section-num">6.</span>今後の必要なこと (優先度順・全11項目)</h2>
+
+        <div class="mt-6">
+          <h3 class="flex items-center gap-2"><span style="color:#f43f5e;">🔴</span>Phase 1: 今週 (6/15-6/21) — 基盤整備</h3>
+          <div class="check-item priority-red"><span class="badge badge-red mr-2">あなた</span><strong>原体験素材A/B/Cの詳細棚卸し</strong> (30分) — original_experiences.md を埋める</div>
+          <div class="check-item priority-red"><span class="badge badge-red mr-2">あなた</span><strong>ピン投稿2本を原体験型に差替</strong> (10分) — 素材A & C ベース</div>
+          <div class="check-item priority-red"><span class="badge badge-blue mr-2">私</span><strong>既存ドラフト82本の4層タグ付け</strong> — front matterに funnel_layer 追加</div>
+          <div class="check-item priority-red"><span class="badge badge-blue mr-2">私</span><strong>既存L1ドラフトに原体験エッセンス注入</strong> — 約20本ブラッシュアップ</div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="flex items-center gap-2"><span style="color:#fbbf24;">🟡</span>Phase 2: 来週 (6/22-6/28) — 量産開始</h3>
+          <div class="check-item priority-yellow"><span class="badge badge-blue mr-2">私</span><strong>新規ドラフト35本を4層配分で生成</strong></div>
+          <div class="check-item priority-yellow"><span class="badge badge-blue mr-2">私</span><strong>CTA統一テンプレを各ドラフトに反映</strong></div>
+          <div class="check-item priority-yellow"><span class="badge badge-red mr-2">あなた</span><strong>プロフィール再評価</strong> (5分)</div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="flex items-center gap-2"><span style="color:#10b981;">🟢</span>Phase 3: 6/29-7/5 — 検証</h3>
+          <div class="check-item priority-green"><span class="badge badge-blue mr-2">私</span><strong>週次レビュー: 4層別パフォーマンス分析</strong></div>
+          <div class="check-item priority-green"><span class="badge badge-blue mr-2">私</span><strong>L2共感層TOP3の構造をテンプレ化</strong></div>
+          <div class="check-item priority-green"><span class="badge badge-gray mr-2">自動</span><strong>フォロワー成長率トラッキング開始</strong></div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="flex items-center gap-2"><span style="color:#38bdf8;">🔵</span>Phase 4: 7/6-7/12 — 拡張</h3>
+          <div class="check-item priority-blue"><span class="badge badge-blue mr-2">私</span><strong>L4接続層→note移行動線テスト + 月次レビュー</strong></div>
+        </div>
+      </section>
+
+      <!-- 7. Don't list -->
+      <section id="dontlist" class="card p-8" style="border-left: 6px solid #f43f5e;">
+        <h2><span class="section-num">7.</span>やらないこと (Don't list)</h2>
+        <div class="space-y-2 mt-4">
+          <div class="flex items-start gap-3"><span class="text-red-400 font-bold mt-0.5">❌</span><div><strong class="text-white">list-marketing ピラー</strong> <span class="text-slate-400">(avg 1.7 = 完全死亡)</span></div></div>
+          <div class="flex items-start gap-3"><span class="text-red-400 font-bold mt-0.5">❌</span><div><strong class="text-white">how-to / framework / numbers-first 単独使用</strong> <span class="text-slate-400">(likes率ゼロ)</span></div></div>
+          <div class="flex items-start gap-3"><span class="text-red-400 font-bold mt-0.5">❌</span><div><strong class="text-white">末尾「あなたは？」テンプレ4点セット</strong> <span class="text-slate-400">の全投稿適用</span></div></div>
+          <div class="flex items-start gap-3"><span class="text-red-400 font-bold mt-0.5">❌</span><div><strong class="text-white">AI/Threads自動更新システム</strong> <span class="text-slate-400">(一旦不要、手動でOK)</span></div></div>
+          <div class="flex items-start gap-3"><span class="text-red-400 font-bold mt-0.5">❌</span><div><strong class="text-white">純粋に1指標(viewsだけ)で投稿を評価する</strong></div></div>
+        </div>
+      </section>
+
+      <!-- Quick links -->
+      <section class="card p-6">
+        <h3 class="mb-3">関連リンク</h3>
+        <div class="grid md:grid-cols-2 gap-3">
+          <a href="/nosuke-threads-assets/dashboard/" class="card-hi p-4 hover:border-sky-400 transition" style="text-decoration:none; color:inherit;">
+            <div class="text-xs text-slate-400">📊 数字を見る</div>
+            <div class="text-white font-bold mt-1">ダッシュボード v3</div>
+            <div class="text-xs text-slate-500 mt-1">投稿パフォーマンスのリアルタイム可視化</div>
+          </a>
+          <div class="card-hi p-4">
+            <div class="text-xs text-slate-400">📝 原稿素材を埋める</div>
+            <div class="text-white font-bold mt-1">original_experiences.md</div>
+            <div class="text-xs text-slate-500 mt-1">knowledge/Threads/strategy/ にある雛形</div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="text-center text-slate-500 text-sm py-8">
+        <div>Generated by build_html_strategy.py</div>
+        <div class="mt-1">226投稿の実データ分析(2026-06-14時点)に基づく戦略文書</div>
+      </footer>
+    </main>
+  </div>
+</div>
+</body>
+</html>
